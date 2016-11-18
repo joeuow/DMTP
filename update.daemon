@@ -1,0 +1,24 @@
+#!/bin/sh
+
+exe=ositechdmtp
+hostnamefile=/etc/hostname
+statfile=update.stat
+pid=
+cd /mnt/flash/titan-data/
+if [ -x $exe ]; then
+	sleep 5
+	ls -l $exe
+	pid=`ps -e | awk '$5 ~ /\<ositechdmtp\>/ {print $1; exit 0}'`
+	if [ -n "$pid" ]; then
+		kill $pid
+		sleep 10
+	fi
+	cp $exe /ositech/
+	echo "ositechDMTP 1.0.3.6" > $hostnamefile 
+	echo "SUCCESS" > $statfile
+	sleep 5
+	rm $exe
+	reboot
+	exit 0
+fi
+echo "ositechdmtp executable is missing" > $statfile

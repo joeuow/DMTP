@@ -1,0 +1,11 @@
+#!/bin/sh
+
+pid=`ps -e | awk '$5 ~ /\<ositechdmtp\>/ {print $1; exit 0}'`
+if [ -z $pid ]; then
+	echo "program not found"
+else
+	echo $pid
+	kill -s SIGUSR1 $pid
+fi
+
+

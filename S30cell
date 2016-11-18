@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ ! -e /var/run/ppp ]; then
+	mkdir /var/run/ppp
+fi
+if [ ! -e /var/run/wpa ]; then
+	mkdir /var/run/wpa
+fi
+insmod sdio
+insmod sd8xxx
+sleep 1

@@ -1,0 +1,44 @@
+#!/bin/sh
+echo "Starting Ositech DMTP $1"
+prog=ositechdmtp
+conf=/var/conf/ositechdmtp.conf
+cach=/home/default/ositechdmtp.cach
+pdsn=`/ositech/mtd_read`
+
+start() {
+if [ ! -z "$pdsn" ]; then
+	stadev=`awk 'BEGIN {FS="="} $1 ~/sta\.device/ && $1 !~ /#sta/ {print $2}' $conf`
+	if [ -z "$stadev" ]; then
+		echo "sta.device=$pdsn" >> $conf
+	fi
+	sserial=`awk 'BEGIN {FS="="} $1 ~/sta\.serial/ && $1 !~ /#sta/ {print $2}' $cach`
+	if [ -z "$sserial" ]; then
+		echo "sta.serial=$pdsn" >> $cach
+	elif [ "$sserial" != "$pdsn" ]; then
+		sed -i -e "/sta\.serial/s/=.*/=${pdsn}/" $cach
+	fi
+fi
+(SHELL=/bin/sh; $prog -silent > /dev/null) &
+}
+
+stop() {
+pid=`ps -e | awk '$5 ~ /\<ositechdmtp\>/ {print $1; exit 0}'`
+if [ ! -z $pid ]; then
+	kill -s SIGUSR1 $pid
+fi
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	restart)
+		stop
+		sleep 10
+		start
+		;;
+	*)
+		stop
+		;;
+esac
+exit 0
